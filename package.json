@@ -1,0 +1,32 @@
+{
+  "name": "blueprint",
+  "version": "0.0.1",
+  "description": "Blueprint is a simple CLI tool that parses your frontend codebase and generates visual diagrams of your pages, components, and structure — like a blueprint for your app.",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "blueprint": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/cli/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AryanChawla1/blueprint.git"
+  },
+  "author": "Aryan Chawla Dora <aryanchawlad@gmail.com> (https://www.aryanchawla.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AryanChawla1/blueprint/issues"
+  },
+  "homepage": "https://github.com/AryanChawla1/blueprint#readme",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1"
+  }
+}
