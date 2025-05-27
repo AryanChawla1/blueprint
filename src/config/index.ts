@@ -9,18 +9,21 @@ export function loadConfig(root: string): Config {
         const raw = fs.readFileSync(configPath, 'utf-8');
         return JSON.parse(raw) as Config;
     }
+    console.warn("No blueprint.config.json found, using default configuration.");
     return (
         {
-            "framework": "vite-react",
+            "framework": "vite-react-js",
             "exclude": [
                 "node_modules",
                 "dist",
                 "build"
             ],
+            "entry": "src/main.jsx",
             "diagram": {
                 "colors": {
                     "page": "#FF5733",
-                    "component": "#33FF57"
+                    "component": "#33FF57",
+                    "unknown": "#0000FF"
                 }
             }
         }
