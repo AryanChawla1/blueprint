@@ -1,6 +1,6 @@
 {
   "name": "blueprint",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Blueprint is a simple CLI tool that parses your frontend codebase and generates visual diagrams of your pages, components, and structure — like a blueprint for your app.",
   "main": "dist/cli/index.js",
   "bin": {
@@ -22,11 +22,15 @@
   },
   "homepage": "https://github.com/AryanChawla1/blueprint#readme",
   "devDependencies": {
+    "@babel/traverse": "^7.27.3",
     "@types/node": "^22.15.21",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@babel/parser": "^7.27.3",
+    "@babel/types": "^7.27.3",
+    "@types/babel__traverse": "^7.20.7",
     "chalk": "^5.4.1"
   }
 }
