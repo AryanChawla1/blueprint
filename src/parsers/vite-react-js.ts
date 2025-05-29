@@ -16,7 +16,6 @@ function classifyType(filePath: string): NodeType {
 
 function resolveImportPath(from: string, importPath: string): string {
     const base = path.resolve(path.dirname(from), importPath);
-    console.log("Checking import path:", base);
     const extensions = ['', '.js', '.jsx'];
     for (const ext of extensions) {
         const fullPath = `${base}${ext}`;
@@ -32,7 +31,6 @@ function resolveBarrelPath(base: string, component: string): string {
         for (const ext of extensions) {
             const indexPath = path.join(base, ext);
             if (fs.existsSync(indexPath)) {
-                console.log(`Found barrel file: ${indexPath}`);
                 const content = fs.readFileSync(indexPath, 'utf-8');
                 const ast = bparse(content, {
                     sourceType: 'module',

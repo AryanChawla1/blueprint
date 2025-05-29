@@ -21,8 +21,8 @@ export function loadConfig(root: string): Config {
             "entry": "src/main.jsx",
             "diagram": {
                 "colors": {
-                    "page": "#FF5733",
-                    "component": "#33FF57",
+                    "page": "#FF0000",
+                    "component": "#00FF00",
                     "unknown": "#0000FF"
                 }
             }
