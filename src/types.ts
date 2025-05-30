@@ -8,7 +8,7 @@ export type Node = {
 };
 
 export interface Config {
-    framework: string;
+    framework: Frameworks;
     exclude: string[];
     entry: string;
     diagram: {
@@ -20,3 +20,5 @@ export interface Config {
         }
     }
 }
+
+export type Frameworks = 'vite-react-js' | 'unknown';
