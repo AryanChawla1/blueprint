@@ -2,16 +2,15 @@
 import path from 'path';
 
 import {loadConfig} from '../config';
-import {detectFramework, parse} from '../parsers';
+import {parse} from '../parsers';
 import {generateDiagram} from '../diagram/generate';
+import {Config} from '../types';
 
 const rootPath = process.cwd();
 
-const config = loadConfig(rootPath);
+const config: Config = loadConfig(rootPath);
 console.log("Loaded Config:", config);
-
-const framework = config.framework || detectFramework(rootPath);
-console.log("Detected Framework:", framework);
+const framework = config.framework || 'unknown';
 
 const entry = path.join(rootPath, config.entry);
 
