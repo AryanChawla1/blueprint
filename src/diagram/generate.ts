@@ -6,7 +6,7 @@ import { Config } from '../types';
 import { renderTreeToPNG } from './diagramToPng';
 
 export function generateDiagram(data: Node, config: Config, indent = '   ', isLast = true): string {
-    renderTreeToPNG(data, 'diagram.png');
+    renderTreeToPNG(data, 'diagram.png', config);
     return recursiveGenerate(data, config, indent, isLast);
 }
 
