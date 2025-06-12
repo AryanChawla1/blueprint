@@ -1,95 +1,108 @@
 import { createCanvas } from "canvas";
-
 import { PositionedNode, Node, Config } from "../types";
+import fs from "fs";
 
-const NODE_WIDTH = 120;
-const NODE_HEIGHT = 40;
+const NODE_WIDTH = 150;
+const NODE_HEIGHT = 45;
 const HORIZONTAL_SPACING = 30;
 const VERTICAL_SPACING = 70;
 
-//TODO: Add support for custom colors and styles from config
-//TODO: Adjust canas size based on tree depth and width
-//TODO: Rather than building a tree left to right, start from the center and build outwards
-
-// function to get the dimensions of the tree for canvas size
-function getDimensions(root: Node):
-    { width: number; height: number } {
-    let maxWidth = 0;
-    let maxHeight = 0;
-
-    function traverse(node: Node, depth: number, xOffset: number): number {
-        const currentWidth = NODE_WIDTH + HORIZONTAL_SPACING;
-        const currentHeight = NODE_HEIGHT + VERTICAL_SPACING;
-
-        maxHeight = Math.max(maxHeight, (depth + 1) * currentHeight);
-
-        let nextX = xOffset;
-        for (const child of node.children) {
-            nextX = traverse(child, depth + 1, nextX);
-            nextX += NODE_WIDTH + HORIZONTAL_SPACING;
-        }
-
-        maxWidth = Math.max(maxWidth, xOffset + NODE_WIDTH);
-
-        return xOffset;
+// --- Helper: Calculate subtree widths ---
+function measureWidths(node: Node): number {
+    if (node.children.length === 0) {
+        (node as any)._subtreeWidth = NODE_WIDTH;
+        return NODE_WIDTH;
     }
 
-    traverse(root, 0, 50);
-    return { width: maxWidth + HORIZONTAL_SPACING, height: maxHeight };
+    let total = 0;
+    for (const child of node.children) {
+        const w = measureWidths(child);
+        total += w + HORIZONTAL_SPACING;
+    }
+    total -= HORIZONTAL_SPACING; // remove last gap
+    (node as any)._subtreeWidth = total;
+    return total;
 }
 
+// --- Helper: Apply actual layout ---
+function applyLayout(
+    node: Node,
+    depth: number,
+    xStart: number,
+    positioned: PositionedNode[]
+): void {
+    const subtreeWidth = (node as any)._subtreeWidth ?? NODE_WIDTH;
+    const x = xStart + subtreeWidth / 2 - NODE_WIDTH / 2;
+    const y = depth * (NODE_HEIGHT + VERTICAL_SPACING);
+
+    const positionedNode: PositionedNode = {
+        ...node,
+        x,
+        y,
+    };
+    positioned.push(positionedNode);
+
+    let currentX = xStart;
+    for (const child of node.children) {
+        const childWidth = (child as any)._subtreeWidth ?? NODE_WIDTH;
+        applyLayout(child, depth + 1, currentX, positioned);
+        currentX += childWidth + HORIZONTAL_SPACING;
+    }
+}
+
+// --- Helper: Get Dimensions ---
+function getDimensions(root: Node): { width: number; height: number } {
+    const width = (root as any)._subtreeWidth ?? NODE_WIDTH;
+    const height = getDepth(root) * (NODE_HEIGHT + VERTICAL_SPACING);
+    return { width: width + 2 * HORIZONTAL_SPACING, height };
+}
+
+function getDepth(node: Node): number {
+    if (node.children.length === 0) return 1;
+    return 1 + Math.max(...node.children.map(getDepth));
+}
+
+// --- Main Function ---
 export async function renderTreeToPNG(root: Node, outputPath: string, config: Config) {
-    const {width, height} = getDimensions(root);
+    measureWidths(root);
+    const { width, height } = getDimensions(root);
     console.log(`Canvas size: ${width}x${height}`);
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
     const positioned: PositionedNode[] = [];
-    let maxDepth = 0;
-    
-    function layoutTree(node: Node, depth: number, xOffset: number): number {
-        const current: PositionedNode = {
-            ...node,
-            x: xOffset,
-            y: depth * (NODE_HEIGHT + VERTICAL_SPACING),
-        };
-        positioned.push(current);
-        maxDepth = Math.max(maxDepth, depth);
+    applyLayout(root, 0, HORIZONTAL_SPACING, positioned);
 
-        let nextX = xOffset;
-
-        for (const child of node.children) {
-            nextX = layoutTree(child, depth + 1, nextX);
-            nextX += NODE_WIDTH + HORIZONTAL_SPACING;
-        }
-
-        return current.x;
-    }
-
-    layoutTree(root, 0, 50);
-
+    // Draw edges
     positioned.forEach((parent) => {
         parent.children.forEach((child) => {
-            const childNode = positioned.find(n => n.name === child.name);
+            const childNode = positioned.find((n) => n.name === child.name);
             if (childNode) {
                 ctx.beginPath();
                 ctx.moveTo(parent.x + NODE_WIDTH / 2, parent.y + NODE_HEIGHT);
                 ctx.lineTo(childNode.x + NODE_WIDTH / 2, childNode.y);
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 1;
                 ctx.stroke();
             }
         });
     });
 
-    ctx.font = "12pz sans-serif";
+    // Draw nodes
+    ctx.font = "12px sans-serif";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
     positioned.forEach((node) => {
-        const type = config.diagram.colors[node.type] || "#eee";
-        ctx.fillStyle = type;
+        const fillColor = config.diagram.colors[node.type] || "#eee";
+        ctx.fillStyle = fillColor;
         ctx.fillRect(node.x, node.y, NODE_WIDTH, NODE_HEIGHT);
+        ctx.strokeStyle = "#000";
+        ctx.strokeRect(node.x, node.y, NODE_WIDTH, NODE_HEIGHT);
         ctx.fillStyle = "#000";
-        ctx.fillText(node.name, node.x + NODE_WIDTH / 2, node.y + NODE_HEIGHT / 2 + 5);
-    })
+        ctx.fillText(node.name, node.x + NODE_WIDTH / 2, node.y + NODE_HEIGHT / 2);
+    });
 
     const buffer = canvas.toBuffer("image/png");
-    require("fs").writeFileSync(outputPath, buffer);
+    fs.writeFileSync(outputPath, buffer);
 }
