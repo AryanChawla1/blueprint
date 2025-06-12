@@ -3,7 +3,15 @@ import chalk from 'chalk';
 import { Node } from '../types';
 import { Config } from '../types';
 
+import { renderTreeToPNG } from './diagramToPng';
+
 export function generateDiagram(data: Node, config: Config, indent = '   ', isLast = true): string {
+    renderTreeToPNG(data, 'diagram.png', config);
+    return recursiveGenerate(data, config, indent, isLast);
+}
+
+
+function recursiveGenerate(data: Node, config: Config, indent = '   ', isLast = true): string {
     const getColorFn = (name: string) => {
         const color = config?.diagram?.colors?.[name];
         if (!color) return (text: string) => text;
@@ -21,5 +29,5 @@ export function generateDiagram(data: Node, config: Config, indent = '   ', isLa
     const result = `${indent}${branch}${colorize(data.name)}\n`;
 
     const lastIndex = data.children.length - 1;
-    return result + data.children.map((child, index) => generateDiagram(child, config, nextIndent, index === lastIndex)).join('');
+    return result + data.children.map((child, index) => recursiveGenerate(child, config, nextIndent, index === lastIndex)).join('');
 }

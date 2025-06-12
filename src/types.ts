@@ -7,6 +7,11 @@ export type Node = {
     children: Node[];
 };
 
+export interface PositionedNode extends Node {
+    x: number;
+    y: number;
+}
+
 export interface Config {
     framework: Frameworks;
     exclude: string[];
