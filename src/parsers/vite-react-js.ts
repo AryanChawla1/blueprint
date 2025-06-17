@@ -79,6 +79,8 @@ export function parse(filePath: string): Node | null {
     
     const imports: Record<string, string> = {};
     const components: Set<string> = new Set();
+    const routes: Set<string> = new Set();
+    const links: Set<string> = new Set();
 
     traverse(ast, {
         ImportDeclaration(path) {
@@ -94,7 +96,13 @@ export function parse(filePath: string): Node | null {
         JSXOpeningElement(path) {
             if (t.isJSXIdentifier(path.node.name)) {
                 const name = path.node.name.name;
-                if (/^[A-Z]/.test(name)) {
+                if (name.endsWith("Route")) {
+                    routes.add(name); //TODO: get component not route
+                }
+                else if (name === "Link") {
+                    links.add(name);
+                }
+                else if (/^[A-Z]/.test(name)) {
                     components.add(name);
                 }
             }
@@ -102,8 +110,13 @@ export function parse(filePath: string): Node | null {
     });
 
     const children: Node[] = [];
+    const route: Node[] = [];
+    const link: Node[] = [];
     let childPath = '';
-    for (const name of components) {
+    // combine components, routes, and links into a single array
+    console.log(components.size, routes.size, links.size);
+    const allComponents = Array.from(components).concat(Array.from(routes), Array.from(links));
+    for (const name of allComponents) {
         const relImport = imports[name];
         if (!relImport) continue;
         const fullPath = path.join(path.dirname(absolutePath), relImport);
@@ -114,7 +127,13 @@ export function parse(filePath: string): Node | null {
         }
         const childNode = parse(childPath);
         if (childNode) {
+            if (routes.has(name)) {
+            route.push(childNode);
+            } else if (links.has(name)) {
+            link.push(childNode);
+            } else {
             children.push(childNode);
+            }
         }
     }
     const node: Node =  (
@@ -122,7 +141,9 @@ export function parse(filePath: string): Node | null {
             name: path.basename(filePath),
             path: filePath,
             type: classifyType(filePath),
-            children: children
+            children: children,
+            routes: route,
+            links: link
         }
     )
     cache.set(absolutePath, node);

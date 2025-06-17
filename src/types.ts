@@ -5,6 +5,8 @@ export type Node = {
     name: string;
     path: string;
     children: Node[];
+    routes?: Node[];
+    links?: Node[];
 };
 
 export interface PositionedNode extends Node {
@@ -21,6 +23,8 @@ export interface Config {
             page: string;
             component: string;
             unknown: string;
+            routes: string;
+            links: string;
             [key: string]: string; // Allow additional colors
         }
     }

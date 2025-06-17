@@ -12,7 +12,7 @@ export function generateDiagram(data: Node, config: Config, indent = '   ', isLa
 
 
 function recursiveGenerate(data: Node, config: Config, indent = '   ', isLast = true): string {
-    const getColorFn = (name: string) => {
+    const getColorComponent = (name: string) => {
         const color = config?.diagram?.colors?.[name];
         if (!color) return (text: string) => text;
 
@@ -25,7 +25,7 @@ function recursiveGenerate(data: Node, config: Config, indent = '   ', isLast = 
     const branch = isLast ? '└─ ' : '├─ ';
     const nextIndent = indent + (isLast ? '   ' : '│  ');
 
-    const colorize = getColorFn(data.type || data.name); // use `type` if you have one
+    const colorize = getColorComponent(data.type || data.name); // use `type` if you have one
     const result = `${indent}${branch}${colorize(data.name)}\n`;
 
     const lastIndex = data.children.length - 1;

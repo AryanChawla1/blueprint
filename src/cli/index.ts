@@ -24,6 +24,7 @@ try {
     const diagram = generateDiagram(parsed, config);
     console.log("Generated Diagram...");
     console.log(diagram);
+    console.dir(parsed, { depth: null });
 } catch (error) {
     console.error("Error during parsing or diagram generation:", error);
     process.exit(1);

@@ -17,7 +17,9 @@ const defaultConfig_vite_react_js: Config =
         "colors": {
             "page": "#FF0000",
             "component": "#00FF00",
-            "unknown": "#0000FF"
+            "unknown": "#0000FF",
+            "routes": "#FFFF00",
+            "links": "#FF00FF"
         }
     }
 }
